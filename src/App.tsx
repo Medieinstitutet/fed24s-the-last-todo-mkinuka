@@ -1,35 +1,64 @@
+
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import { TodosObject } from './models/TodosObject'
+import { TodoListLoop } from './components/TodoListLoop'
+import { AddTodo } from './components/AddTodo'
 
 function App() {
-  const [count, setCount] = useState(0)
+const [todo, setTodo] = useState<TodosObject[]>([
+  new TodosObject("Dammsuga", false, "dammsuga vardagsrummet och köket",),
+  new TodosObject("Handla", false, "handla: mjölk, kaffe och winerbröd", )
+])
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+const removeCheckedTodos = () => {
+  setTodo(todo.filter((t) => !t.completed))
+}
+
+const addTodo = (newTodo: TodosObject) => {
+  setTodo([...todo, new TodosObject(newTodo.title, newTodo.completed, newTodo.description)])
+}
+
+const sortTodosByName = () => {
+  const sortedTodos = [...todo].sort((a, b) => a.title.localeCompare(b.title))
+  setTodo(sortedTodos)
+}
+
+const toggleTodoStatus = (id:number) => {
+  const updatedTodos = todo.map((t) => {
+    if (t.id === id) {
+      return { ...t, completed: !t.completed }
+    }
+    return t
+  })
+  setTodo(updatedTodos)
+}
+
+console.log(todo)
+  return <>
+  <main className="w-screen flex items-center flex-col">
+    <div className='form-container'>
+
+    <h1 className='bigHeader'>Välkommen till din Todo lista </h1>
+      <AddTodo addTodos={addTodo} /> 
+      <button onClick={sortTodosByName}>{"sortera listan"}</button>
+      <button onClick={removeCheckedTodos}>{"Ta bort klara todos"}</button>
+    </div>
+
+    <section id='parent-container'>
+      <div id='container'>
+        <h3 className='header '>{"Kvar att göra"}</h3>
+        <TodoListLoop loopProperties={todo.filter((t) => !t.completed)}  removeChekedTodos={removeCheckedTodos} toggleTodoStatus={toggleTodoStatus} />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+      <div id="container-two">
+        <h3 className='header'>{"Klara todos"}</h3>
+        <TodoListLoop loopProperties={todo.filter((t) => t.completed)} removeChekedTodos={removeCheckedTodos} toggleTodoStatus={toggleTodoStatus}/>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+    </section>
+  </main>
+  
     </>
-  )
+  
 }
 
 export default App
